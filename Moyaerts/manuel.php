@@ -1,105 +1,78 @@
 <html>
-
-	<head><title>MODE MANUEL</title>
-	<link rel = "stylesheet" href="stylesheet.css" />
-
+	<head>
+                <title>MODE MANUEL</title>
+	        <link rel="stylesheet" href="stylesheet.css" />
 	</head>
-        
 	<body>
-		<h1>PROJET PRESENCE EN MODE MANUEL<h1>
-		  <div>
-                        <button id = "bouton" onclick="trame1()">Chauffage et Lumière</button>
-                        <button id = "bouton" onclick="trame2()">Chauffage</button>
-                        <button id = "bouton" onclick="trame3()">Lumière</button>
-                        <button id = "bouton" onclick="trame4()">Arrêt</button>
-                        <button id = "bouton" onclick="donnee()">Affichage des données</button>
-                 </div>
-		
-<br>
-<script>
-        function trame1(){
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {};
-        xhttp.open("GET", "Include/trame1.php", true);
-        xhttp.send();
-        }
-</script>
-<script>
-        function trame2()
-        {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {};
-        xhttp.open("GET", "Include/trame2.php", true);
-        xhttp.send();
-	}
-</script>       
-<script>
-        
-        function trame3()
-        {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {};
-        xhttp.open("GET", "Include/trame3.php", true);
-        xhttp.send();
-        }
-</script>
-<script>        
-        function trame4()
-        {
-          var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {};
-        xhttp.open("GET", "Include/trame4.php", true);
-        xhttp.send();
+		<h1>PROJET PRESENCE EN MODE MANUEL</h1>
+                <!-- Les boutons de commande -->
+                <div>
+                        <button id="bouton" onclick="commander()">Chauffage et Lumière</button>
+                        <button id="bouton" onclick="commanderChauffage()">Chauffage</button>
+                        <button id="bouton" onclick="commanderLumiere()">Lumière</button>
+                        <button id="bouton" onclick="arreter()">Arrêt</button>
+                </div>
+                <br />
+                <!-- Les données seront affichées ici -->
+                <div id="donnees"></div>
+                <!-- Les scripts Ajax -->
+                <script>
+                        function commander()
+                        {
+                                var xhttp = new XMLHttpRequest();
+                                xhttp.onreadystatechange = function() {};
+                                xhttp.open("GET", "Include/commande.php", true);
+                                xhttp.send();
+                        }
 
-	}
-</script>
-<script>
-	function donnee()
-	{
-		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {};
-		xhttp.open("GET", "Include/donnee.php", true);
-		xhttp.send();
-	}
-</script>
-<?php
-header("Refresh:3");
-$portserie = "/dev/ttyUSB0" ;
-if($ouvertureFichier = fopen($portserie, 'r'))
-{
+                        function commanderChauffage()
+                        {
+                                var xhttp = new XMLHttpRequest();
+                                xhttp.onreadystatechange = function() {};
+                                xhttp.open("GET", "Include/commande-chauffage.php", true);
+                                xhttp.send();
+                        }
 
-        $lecture = fgets($ouvertureFichier, 4096) ;
-        fclose($ouvertureFichier);
-}
+                        function commanderLumiere()
+                        {
+                                var xhttp = new XMLHttpRequest();
+                                xhttp.onreadystatechange = function() {};
+                                xhttp.open("GET", "Include/commande-lumiere.php", true);
+                                xhttp.send();
+                        }
 
+                        function arreter()
+                        {
+                                var xhttp = new XMLHttpRequest();
+                                xhttp.onreadystatechange = function() {};
+                                xhttp.open("GET", "Include/arret.php", true);
+                                xhttp.send();
+                        }
 
-$mouvement=$lecture[10];
-$temperature = $lecture[24].$lecture[25].$lecture[26].$lecture[27].$lecture[28];
-$humidite = $lecture[39].$lecture[40].$lecture[41].$lecture[42].$lecture[43];
-$lumiere = $lecture[53].$lecture[54].$lecture[55].$lecture[56].$lecture[57].$lecture[58];
+                        function recupererDonnees()
+                        {
+                                var xhttp = new XMLHttpRequest();
+                                <!-- Les états de readyState sont les suivants : -->
+                                <!--         0: non initialisé -->
+                                <!--         1: connexion établie -->
+                                <!--         2: requête reçue -->
+                                <!--         3: réponse en cours -->
+                                <!--         4: terminé (le seul vraiment utile) -->
+                                xhttp.onreadystatechange = function() {
+                                        if (this.readyState == 4 && this.status == 200) {
+                                                document.getElementById("donnees").innerHTML = this.responseText;
+                                        }
+                                        else
+                                        {
+                                                document.getElementById("donnees").innerHTML = "<p>Pas de données</p>";
+                                        }
+                                };
+                                xhttp.open("GET", "Include/donnees.php", true);
+                                xhttp.send();
+                        }
 
-
-   echo"<table border='1'>";
-                echo"<tr>";
-                        echo"<th>Salle</th>";
-                        echo"<th>Présence</th>";
-                        echo"<th>Température</th>";
-                        echo"<th>Humidité</th>";
-                        echo"<th>Lumière</th>";
-
-                echo"</tr>";
-       echo"<tr>";
-             echo"  <th>B22</th>";
-             echo" <td>",$mouvement,"</td>";
-             echo  "<td>",$temperature,"°C"."</td>";
-             echo"<td>",$humidite,"%"."</td>";
-             echo"  <td>",$lumiere,"</td>";
-       echo"</tr>";
-
-	     echo" </table>";
-  
-?>
-
-</body>
+                        <!-- Appel périodique pour récupérer les données -->
+                        setInterval(recupererDonnees, 5000); // ici toutes les 5 secondes
+                </script>
+        </body>
 </html>
-
