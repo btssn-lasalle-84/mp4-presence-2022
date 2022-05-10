@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<title>PROJET PRESENCE</title>
+		<link href=stylesheet.css rel = "stylesheet"/>
+		<meta charset="utf-8">
+	</head>
+	<body>
+		<header>
+			<h1>BIENVENUE DANS NOTRE PROJET</h1>
+		</header>
+
+		<p>Voici l'interface de notre projet qui va permettre de gérer le projet présence. Ce projet va permettre plusieurs choses notamment grâce aux mode manuel et automatique qui vous est proposé. </p> 
+		<p>Mode Manuel : Il permet de gérer l'interface et la demande d'information via des boutons avec des données de présence, de temperature, de lumière et d'humidite. De plus, certains de ces boutons vont permettre d'allumer et d'éteindre la lumière, le chauffage ou les deux en même temps. </p>
+		<p>Mode Automatique : Contrairement au mode Manuel et comme l'indique son nom, il fait tout automatiquement. Vous recevrez les données toutes les secondes qui seront classées dans un tableau. Ce qui diffère, c'est que selon les données de la lumière, de la temperature et de la présence, le site agira en conséquence et allumera la lumière et le chauffage selon les données reçues. </p>
+		<center>
+			<form method = "GET" action="manuel.php">
+				<button class = "manuel">MODE MANUEL</button>
+			</form>
+			<form method = "GET" action = "auto.php">
+				<button class = "auto">MODE AUTOMATIQUE</button>
+			</form>
+		</center>
+
+	</body>
+</html>
+
