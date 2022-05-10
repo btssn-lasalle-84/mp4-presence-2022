@@ -1,0 +1,158 @@
+/*
+  Samuel Libes
+  09/05/2022
+  A ouvrir avec platformio sur Visual Studio Code.
+
+  Ce programme sert pour notre projet présence, il sert a piloter la lumière avec un thyristor et le chauffage avec un relais.
+  Il sert aussi a récupérer si il y a du mouvement, le niveau de lumière sur 1024 points, la température et l'humidité.
+*/
+
+#include <Arduino.h>
+#include <Adafruit_sensor.h>
+#include <DHT.h>
+ 
+#define ON 49
+#define OFF 48
+#define TAILLETABLEAU 47
+#define DHTPIN 5
+#define DHTTYPE DHT22
+#define pinChauffage 8 
+#define pinLumiere 9 
+
+DHT dht(DHTPIN, DHTTYPE);
+String chaineCaractere;
+char tableau[TAILLETABLEAU];
+char  caractere;
+ 
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  pinMode(pinChauffage,OUTPUT);
+  pinMode(pinLumiere,OUTPUT);
+  digitalWrite(pinChauffage,LOW);
+  digitalWrite(pinLumiere,LOW);
+  Serial.println(' ');
+}
+ 
+float lumiere(){
+  float photoResistance =A0;
+  float lumiere;
+  pinMode(photoResistance,INPUT);
+ 
+  if (analogRead(photoResistance) != 0){
+    lumiere = analogRead(photoResistance);
+  return lumiere;
+  }
+  else {
+    return 0;
+  }
+}
+ 
+float temperature(){
+  float temperature;
+  if (dht.readTemperature() != 0){
+    temperature = dht.readTemperature();
+    return temperature;
+  }
+  else {
+    return 0;
+  }
+}
+ 
+float humidite(){
+  float humidity;
+  if (dht.readHumidity() != 0){
+    humidity = dht.readHumidity();
+    return humidity;
+  }
+  else{
+    return 0;
+  }
+}
+ 
+int mouvement(){
+  int capteurMovement = 4;
+  pinMode(capteurMovement,INPUT);
+ 
+  if(digitalRead(capteurMovement)==HIGH)
+  {
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
+}
+ 
+void trame(int mouvement, float temperature, float humidite, float lumiere){
+ 
+  Serial.print('$');
+  Serial.print("Presence");
+  Serial.print(',');  
+  Serial.print(mouvement);
+  Serial.print(',');
+  Serial.print("Temperature");
+  Serial.print(',');
+  Serial.print(temperature);
+  Serial.print(",");
+  Serial.print("Humidite");
+  Serial.print(',');
+  Serial.print(humidite);
+  Serial.print(",");
+  Serial.print("Lumiere");
+  Serial.print(',');
+  Serial.print(lumiere);
+  Serial.println(';');
+}
+
+void loop() {
+
+
+  if (Serial.available()){
+    if (Serial.read() == '$'){
+      delay(100);
+      for (int i=0;i<TAILLETABLEAU;i++){
+        tableau[i] = Serial.read();
+      }
+    }
+  }
+
+    if (tableau[10] == OFF && tableau[24] == ON && tableau[35] == OFF && tableau[45] == ON){
+      digitalWrite(pinChauffage, HIGH);
+      digitalWrite(pinLumiere, HIGH);
+      trame(mouvement(),temperature(),humidite(),lumiere());
+    }
+
+    if (tableau[10] == OFF && tableau[24] == ON && tableau[35] == OFF && tableau[45] == OFF){
+      digitalWrite(pinChauffage, HIGH);
+      digitalWrite(pinLumiere, LOW);
+      trame(mouvement(),temperature(),humidite(),lumiere());
+    }
+
+    if (tableau[10] == OFF && tableau[24] == OFF && tableau[35] == OFF && tableau[45] == ON){
+      digitalWrite(pinLumiere, HIGH);
+      digitalWrite(pinChauffage, LOW);
+      trame(mouvement(),temperature(),humidite(),lumiere());
+    }
+
+    if (tableau[10] == ON && tableau[24] == ON && tableau[35] == ON && tableau[45] == ON){
+      digitalWrite(pinLumiere, LOW);
+      digitalWrite(pinChauffage, LOW);
+      trame(mouvement(),temperature(),humidite(),lumiere());
+    }
+
+    if (tableau[10] == OFF && tableau[24] == OFF && tableau[35] == OFF && tableau[45] == OFF){
+      trame(mouvement(),temperature(),humidite(),lumiere());
+    }
+
+    for (int i=0; i<TAILLETABLEAU;i++){
+      tableau[i] = ' ';
+    }
+  delay(10);
+}
+
+// affichage uniquement   $mouvement,0,temperature,0,humidite,0,lumiere,0;
+//rien                    $mouvement,1,temperature,1,humidite,1,lumiere,1;
+//temperature             $mouvement,0,temperature,1,humidite,0,lumiere,0;
+//lumiere                 $mouvement,0,temperature,0,humidite,0,lumiere,1;
+// temperature et lumiere $mouvement,0,temperature,1,humidite,0,lumiere,1;
