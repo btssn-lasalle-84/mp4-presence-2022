@@ -41,3 +41,4 @@ Les fonctionnalités demandées sont :
 ## Auteur
 
 - [Mathieu Moyaerts](https://github.com/mmoyaerts)
+- [Samuel Libes](https://github.com/slibes)
